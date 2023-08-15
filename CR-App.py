@@ -285,7 +285,7 @@ item_type_input = ct.CTkComboBox(bottom_frame, values=types_list, command=combob
 category_input = ct.CTkComboBox(bottom_frame, values=CATEGORY,)
 confirm = ct.CTkButton(bottom_frame,
                        text="Confirm",
-                       command=lambda: [add_item(), update_type_amout_new_item(), update_whole_table()],
+                       command=lambda: [add_item(), update_whole_table()],
                        )
 name_entry.grid(row=3, column=0, padx=3, sticky="ew")
 amount.grid(row=3, column=1, padx=3, sticky="ew")
@@ -435,6 +435,12 @@ def create_item():
         id_no = int(id_number.readline())
     new_item = [id_no, name_entry.get(), amount.get(), os.getenv("user"), dt.datetime.now(), sku.get(),
                 add_hub_location.get(), item_type_input.get(), category_input.get()]
+    get_type = pd.read_csv(cwd_is + "/types.csv", index_col=[0])
+    for (m_index, m_row) in get_type.iterrows():
+        if item_type_input.get() == get_type.loc[m_index, 'Type']:
+            get_type.loc[m_row.Id, "Quantity"] = get_type.loc[m_row.Id, "Quantity"].astype(int) + int(amount.get())
+            break
+    get_type.to_csv(cwd_is + "/types.csv")
     id_no += 1
     with open(cwd_is + "/unique_id.txt", "w") as id_number:
         id_number.write(f"{id_no}")
@@ -442,16 +448,6 @@ def create_item():
     amount.delete(0, 100)
     sku.delete(0, 100)
     return new_item  
-    
-    
-    
-def update_type_amout_new_item():    
-    get_type = pd.read_csv(cwd_is + "/types.csv", index_col=[0])
-    for (m_index, m_row) in get_type.iterrows():
-        if item_type_input.get() == get_type.loc[m_index, 'Type']:
-            get_type.loc[m_row.Id, "Quantity"] = get_type.loc[m_row.Id, "Quantity"].astype(int) + int(amount.get())
-            break
-    get_type.to_csv(cwd_is + "/types.csv")
 
 
 def next_page_clicked():
